@@ -6,6 +6,8 @@ info:
 
     Some useful links:
     - [The repository](https://github.com/hi-tep/tep-rest-api)
+    - [Leolani](https://github.com/leolani)
+    - [EMISSOR](https://github.com/leolani/emissor)
   termsOfService: https://swagger.io/terms/
   contact:
     email: p.t.j.m.vossen@vu.nl
@@ -22,12 +24,14 @@ tags:
       description: Scenario in the EMISSOR framework
       url: https://github.com/leolani/emissor
 paths:
-  /scenario/{interactionId}:
+  /scenario/{scenarioId}:
     put:
       summary: Start a new interaction
       tags:
         - scenario
       operationId: startScenario
+      parameters:
+        - $ref: '#/components/parameters/scenarioId'
       requestBody:
         required: true
         content:
@@ -48,6 +52,8 @@ paths:
       tags:
         - scenario
       operationId: getScenario
+      parameters:
+        - $ref: '#/components/parameters/scenarioId'
       responses:
         '200':
           description: The metadata of the interaction
@@ -96,6 +102,8 @@ paths:
       tags:
         - gaze
       operationId: submitGaze
+      parameters:
+        - $ref: '#/components/parameters/scenarioId'
       requestBody:
         required: true
         content:
@@ -119,6 +127,16 @@ paths:
         '403':
           description: The submitted scenario is not active
 components:
+  parameters:
+    scenarioId:
+      name: scenarioId
+      description: The unique identifier for the interaction
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      example: "ee6ce14a-94e4-4ddd-ac60-d1e0262f0274"
   schemas:
     ScenarioContext:
       type: object
@@ -127,6 +145,11 @@ components:
         - user
         - location
       properties:
+        id:
+          type: string
+          format: uuid
+          description: The scenario identifier
+          example: "ee6ce14a-94e4-4ddd-ac60-d1e0262f0274"
         location:
           type: string
           description: IRI of the location where the interaction takes place
