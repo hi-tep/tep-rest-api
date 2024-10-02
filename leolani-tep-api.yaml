@@ -6,33 +6,96 @@ info:
 
     Some useful links:
     - [The repository](https://github.com/hi-tep/tep-rest-api)
-  termsOfService: http://swagger.io/terms/
+  termsOfService: https://swagger.io/terms/
   contact:
     email: p.t.j.m.vossen@vu.nl
   license:
     name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
   version: 1.0.11
 externalDocs:
   description: Find out more about Swagger
-  url: http://swagger.io
+  url: https://swagger.io
 tags:
-  - name: leolani
+  - name: scenario
     externalDocs:
-      description: Find out more
-      url: http://swagger.io
-  - name: store
-    description: Access to Petstore orders
-    externalDocs:
-      description: Find out more about our store
-      url: http://swagger.io
-  - name: user
-    description: Operations about user
+      description: Scenario in the EMISSOR framework
+      url: https://github.com/leolani/emissor
 paths:
-  /gaze:
+  /scenario/{interactionId}:
+    put:
+      summary: Start a new interaction
+      tags:
+        - scenario
+      operationId: startScenario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScenarioContext'
+      responses:
+        '200':
+          description: Successfully started an interaction
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScenarioContext'
+        '403':
+          description: There is already an ongoing interaction
+    get:
+      summary: Retrieve an interaction
+      tags:
+        - scenario
+      operationId: getScenario
+      responses:
+        '200':
+          description: The metadata of the interaction
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  location:
+                    type: string
+                    description: IRI of the location.
+                    example: "https://example.com/image.jpg"
+                  user:
+                    type: string
+                    description: IRI identifying the user
+                    example: "https://example.com/ontology/king/tubby"
+        '404':
+          description: There is no such interaction stored
+  /scenario/current:
+    get:
+      summary: Retrieve an interaction
+      tags:
+        - scenario
+      operationId: getScenario
+      responses:
+        '200':
+          description: The metadata of the interaction
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  location:
+                    type: string
+                    description: IRI of the location.
+                    example: "https://example.com/image.jpg"
+                  user:
+                    type: string
+                    description: IRI identifying the user
+                    example: "https://example.com/ontology/king/tubby"
+        '404':
+          description: There is no active interaction
+  /scenario/{scenarioID}/gaze:
     post:
-      summary: Submit bounding box in an image
-      operationId: submitBoundingBox
+      summary: Submit gaze information of the user
+      tags:
+        - gaze
+      operationId: submitGaze
       requestBody:
         required: true
         content:
@@ -43,21 +106,43 @@ paths:
                 image:
                   type: string
                   description: IRI of the image where the bounding box is located.
-                  example: "http://example.com/image.jpg"
+                  example: "https://example.com/image.jpg"
                 entity:
                   type: string
                   description: IRI of the entity contained in the bounding box
-                  example: "http://example.com/ontology/king/tubby"
+                  example: "https://example.com/ontology/king-tubby"
                 boundingBox:
                   $ref: '#/components/schemas/BoundingBox'
       responses:
         '200':
-          description: Successfully submitted bounding box
-        '400':
-          description: Invalid bounding box input
-
+          description: Successfully submitted gaze information
+        '403':
+          description: The submitted scenario is not active
 components:
   schemas:
+    ScenarioContext:
+      type: object
+      description: Contextual meta-data of the interaction
+      required:
+        - user
+        - location
+      properties:
+        location:
+          type: string
+          description: IRI of the location where the interaction takes place
+          example: "https://example.com/museum"
+        user:
+          type: string
+          description: IRI identifying the user
+          example: "https://example.com/ontology/alice"
+        start:
+          type: string
+          format: date-time
+          description: Start date of the interaction
+        end:
+          type: string
+          format: date-time
+          description: Start date of the interaction
     BoundingBox:
       type: object
       required:
