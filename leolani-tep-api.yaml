@@ -30,6 +30,7 @@ paths:
       tags:
         - scenario
       operationId: startScenario
+      x-openapi-router-controller: hitep_service.rest.openapi.controllers.scenario_controller
       parameters:
         - $ref: '#/components/parameters/scenarioId'
       requestBody:
@@ -52,6 +53,7 @@ paths:
       tags:
         - scenario
       operationId: getScenario
+      x-openapi-router-controller: hitep_service.rest.openapi.controllers.scenario_controller
       parameters:
         - $ref: '#/components/parameters/scenarioId'
       responses:
@@ -60,16 +62,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  location:
-                    type: string
-                    description: IRI of the location.
-                    example: "https://example.com/image.jpg"
-                  user:
-                    type: string
-                    description: IRI identifying the user
-                    example: "https://example.com/ontology/king/tubby"
+                $ref: '#/components/schemas/ScenarioContext'
         '404':
           description: There is no such interaction stored
   /scenario/current:
@@ -78,22 +71,14 @@ paths:
       tags:
         - scenario
       operationId: currentScenario
+      x-openapi-router-controller: hitep_service.rest.openapi.controllers.scenario_controller
       responses:
         '200':
           description: The metadata of the interaction
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  location:
-                    type: string
-                    description: IRI of the location.
-                    example: "https://example.com/image.jpg"
-                  user:
-                    type: string
-                    description: IRI identifying the user
-                    example: "https://example.com/ontology/king/tubby"
+                $ref: '#/components/schemas/ScenarioContext'
         '404':
           description: There is no active interaction
   /scenario/{scenarioId}/gaze:
@@ -103,6 +88,7 @@ paths:
       tags:
         - gaze
       operationId: submitGaze
+      x-openapi-router-controller: hitep_service.rest.openapi.controllers.gaze_controller
       parameters:
         - $ref: '#/components/parameters/scenarioId'
       requestBody:
@@ -112,7 +98,7 @@ paths:
             schema:
               type: object
               properties:
-                paintaing:
+                painting:
                   type: string
                   description: IRI of the painting that is the target of the user gaze
                   example: "https://example.com/image.jpg"
@@ -144,6 +130,12 @@ components:
     ScenarioContext:
       type: object
       description: Contextual meta-data of the interaction
+      example:
+        start: 2000-01-23T04:56:07.000+00:00
+        location: https://example.com/museum
+        end: 2000-01-23T04:56:07.000+00:00
+        id: ee6ce14a-94e4-4ddd-ac60-d1e0262f0274
+        user: https://example.com/ontology/alice
       required:
         - user
         - location
@@ -152,15 +144,12 @@ components:
           type: string
           format: uuid
           description: The scenario identifier
-          example: "ee6ce14a-94e4-4ddd-ac60-d1e0262f0274"
         location:
           type: string
           description: IRI of the location where the interaction takes place
-          example: "https://example.com/museum"
         user:
           type: string
           description: IRI identifying the user
-          example: "https://example.com/ontology/alice"
         start:
           type: string
           format: date-time
@@ -169,6 +158,53 @@ components:
           type: string
           format: date-time
           description: Start date of the interaction
+    Entity:
+      type: object
+      description: Entity in the knowledge graph
+      required:
+        - IRI
+      properties:
+        IRI:
+          type: string
+        type:
+          type: array
+          items:
+            type: string
+        label:
+          type: string
+      example:
+        IRI: https://example.com/ontology/king-tubby
+        type:
+          - https://example.com/ontology/person
+          - https://example.com/ontology/nobel
+        label: King Tubby
+    GazeDetection:
+      type: object
+      properties:
+        painting:
+          type: string
+          description: IRI of the painting that is the target of the user gaze
+        entities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Entity'
+          description: IRIs of the entities that are target of the user gaze
+        boundingBox:
+          $ref: '#/components/schemas/BoundingBox'
+      example:
+        painting: https://example.com/image.jpg
+        entities:
+          - IRI: https://example.com/ontology/king-tubby
+            label: King Tubby
+          - IRI: https://example.com/ontology/king-george
+            label: King George
+        boundingBox:
+          bottomLeft:
+            x: 0.0
+            y: 0.0
+          topRight:
+            x: 1.0
+            y: 1.0
     BoundingBox:
       type: object
       required:
@@ -179,6 +215,13 @@ components:
           $ref: '#/components/schemas/Coordinate'
         topRight:
           $ref: '#/components/schemas/Coordinate'
+      example:
+        bottomLeft:
+          x: 0.0
+          y: 0.0
+        topRight:
+          x: 1.0
+          y: 1.0
     Coordinate:
       type: object
       description: Pixel-Coordinates of a point in the image
@@ -188,7 +231,8 @@ components:
       properties:
         x:
           type: number
-          example: 1.0
         y:
           type: number
-          example: 2.0
+      example:
+        x: 1.0
+        y: 2.0
