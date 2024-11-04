@@ -96,20 +96,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                painting:
-                  type: string
-                  description: IRI of the painting that is the target of the user gaze
-                  example: "https://example.com/image.jpg"
-                entity:
-                  type: array
-                  items:
-                    type: string
-                  description: IRIs of the entities that are target of the user gaze
-                  example: "https://example.com/ontology/king-tubby"
-                boundingBox:
-                  $ref: '#/components/schemas/BoundingBox'
+              $ref: '#/components/schemas/GazeDetection'
       responses:
         '200':
           description: Successfully submitted gaze information
