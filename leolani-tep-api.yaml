@@ -81,6 +81,32 @@ paths:
                 $ref: '#/components/schemas/ScenarioContext'
         '404':
           description: There is no active interaction
+  /scenario/{scenarioId}/stop:
+    post:
+      summary: Stop an interaction
+      tags:
+        - scenario
+      operationId: stopScenario
+      x-openapi-router-controller: hitep_service.rest.openapi.controllers.scenario_controller
+      parameters:
+        - $ref: '#/components/parameters/scenarioId'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: string
+              format: date-time
+              description: End date of the interaction. If none is specified, the date of submission is used
+      responses:
+        '200':
+          description: The metadata of the interaction
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScenarioContext'
+        '404':
+          description: There is no interaction with the given ID
   /scenario/{scenarioId}/gaze:
     post:
       summary: Submit gaze information of the user
