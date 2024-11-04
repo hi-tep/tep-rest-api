@@ -30,7 +30,6 @@ paths:
       tags:
         - scenario
       operationId: startScenario
-      x-openapi-router-controller: hitep_service.rest.openapi.controllers.scenario_controller
       parameters:
         - $ref: '#/components/parameters/scenarioId'
       requestBody:
@@ -53,7 +52,6 @@ paths:
       tags:
         - scenario
       operationId: getScenario
-      x-openapi-router-controller: hitep_service.rest.openapi.controllers.scenario_controller
       parameters:
         - $ref: '#/components/parameters/scenarioId'
       responses:
@@ -71,7 +69,6 @@ paths:
       tags:
         - scenario
       operationId: currentScenario
-      x-openapi-router-controller: hitep_service.rest.openapi.controllers.scenario_controller
       responses:
         '200':
           description: The metadata of the interaction
@@ -87,7 +84,6 @@ paths:
       tags:
         - scenario
       operationId: stopScenario
-      x-openapi-router-controller: hitep_service.rest.openapi.controllers.scenario_controller
       parameters:
         - $ref: '#/components/parameters/scenarioId'
       requestBody:
@@ -114,7 +110,6 @@ paths:
       tags:
         - gaze
       operationId: submitGaze
-      x-openapi-router-controller: hitep_service.rest.openapi.controllers.gaze_controller
       parameters:
         - $ref: '#/components/parameters/scenarioId'
       requestBody:
