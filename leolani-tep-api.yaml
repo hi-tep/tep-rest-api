@@ -178,6 +178,10 @@ components:
           description: IRIs of the entities that are target of the user gaze
         boundingBox:
           $ref: '#/components/schemas/BoundingBox'
+        confidence:
+          type: number
+          description: Confidence score of the gaze detection as a value in [0, 1]
+          default: 1.0
       example:
         painting: https://example.com/image.jpg
         entities:
@@ -192,6 +196,7 @@ components:
           topRight:
             x: 1.0
             y: 1.0
+        confidence: 1.0
     BoundingBox:
       type: object
       required:
