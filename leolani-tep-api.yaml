@@ -45,13 +45,13 @@ paths:
               minimal:
                 description: Minimal payload with only the required information
                 value:
-                  location: https://example.com/museum
+                  location: https://example.com/ontology/museum
                   user: https://example.com/ontology/alice
               start:
                 description: Payload with predefined start time
                 value:
                   start: 2000-01-01T00:00:00.000+00:00
-                  location: https://example.com/museum
+                  location: https://example.com/ontology/museum
                   user: https://example.com/ontology/alice
       responses:
         '200':
@@ -63,7 +63,7 @@ paths:
               example:
                 id: ee6ce14a-94e4-4ddd-ac60-d1e0262f0274
                 start: 2000-01-01T00:00:00.000+00:00
-                location: https://example.com/museum
+                location: https://example.com/ontology/museum
                 user: https://example.com/ontology/alice
         '403':
           description: There is already an ongoing interaction
@@ -84,7 +84,7 @@ paths:
               example:
                 id: ee6ce14a-94e4-4ddd-ac60-d1e0262f0274
                 start: 2000-01-01T00:00:00.000+00:00
-                location: https://example.com/museum
+                location: https://example.com/ontology/museum
                 user: https://example.com/ontology/alice
         '404':
           description: There is no such interaction stored
@@ -104,7 +104,7 @@ paths:
               example:
                 id: ee6ce14a-94e4-4ddd-ac60-d1e0262f0274
                 start: 2000-01-01T00:00:00.000+00:00
-                location: https://example.com/museum
+                location: https://example.com/ontology/museum
                 user: https://example.com/ontology/alice
         '404':
           description: There is no active interaction
@@ -137,7 +137,7 @@ paths:
                 $ref: '#/components/schemas/ScenarioContext'
               example:
                 start: 2000-01-01T00:00:00.000+00:00
-                location: https://example.com/museum
+                location: https://example.com/ontology/museum
                 end: 2000-01-01T01:00:00.000+00:00
                 id: ee6ce14a-94e4-4ddd-ac60-d1e0262f0274
                 user: https://example.com/ontology/alice
@@ -163,7 +163,7 @@ paths:
             examples:
               minimal:
                 value:
-                  painting: https://example.com/image.jpg
+                  painting: https://example.com/painting.jpg
                   entities:
                     - IRI: https://example.com/ontology/king-george
                   boundingBox:
@@ -175,13 +175,12 @@ paths:
                       y: 1.0
               full:
                 value:
-                  painting: https://example.com/image.jpg
+                  painting: https://example.com/painting.jpg
                   entities:
-                    - IRI: https://example.com/ontology/king-tubby
+                    - IRI: https://example.com/ontology/crown
                       type:
-                        - https://example.com/ontology/person
-                        - https://example.com/ontology/musician
-                      label: King Tubby
+                        - https://example.com/ontology/jewlery
+                      label: crown
                     - IRI: https://example.com/ontology/king-george
                       type:
                         - https://example.com/ontology/person
@@ -217,7 +216,7 @@ components:
       description: Contextual meta-data of the interaction
       example:
         start: 2000-01-01T00:00:00.000+00:00
-        location: https://example.com/museum
+        location: https://example.com/ontology/museum
         end: 2000-01-01T01:00:00.000+00:00
         id: ee6ce14a-94e4-4ddd-ac60-d1e0262f0274
         user: https://example.com/ontology/alice
@@ -261,11 +260,11 @@ components:
           description: A label associated with the entity
           type: string
       example:
-        IRI: https://example.com/ontology/king-tubby
+        IRI: https://example.com/ontology/king-george
         type:
           - https://example.com/ontology/person
           - https://example.com/ontology/nobel
-        label: King Tubby
+        label: King George
     GazeDetection:
       type: object
       properties:
@@ -290,15 +289,14 @@ components:
       example:
         painting: https://example.com/image.jpg
         entities:
-          - IRI: https://example.com/ontology/king-tubby
+          - IRI: https://example.com/ontology/crown
             type:
-              - https://example.com/ontology/person
-              - https://example.com/ontology/musician
+              - https://example.com/ontology/jewlery
             label: King Tubby
           - IRI: https://example.com/ontology/king-george
             type:
               - https://example.com/ontology/person
-              - https://example.com/ontology/emperor
+              - https://example.com/ontology/nobel
             label: King George
         boundingBox:
           bottomLeft:
