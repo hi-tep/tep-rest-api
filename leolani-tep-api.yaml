@@ -63,7 +63,6 @@ paths:
               example:
                 id: ee6ce14a-94e4-4ddd-ac60-d1e0262f0274
                 start: 2000-01-01T00:00:00.000+00:00
-                end:
                 location: https://example.com/museum
                 user: https://example.com/ontology/alice
         '403':
@@ -85,7 +84,6 @@ paths:
               example:
                 id: ee6ce14a-94e4-4ddd-ac60-d1e0262f0274
                 start: 2000-01-01T00:00:00.000+00:00
-                end:
                 location: https://example.com/museum
                 user: https://example.com/ontology/alice
         '404':
@@ -106,7 +104,6 @@ paths:
               example:
                 id: ee6ce14a-94e4-4ddd-ac60-d1e0262f0274
                 start: 2000-01-01T00:00:00.000+00:00
-                end:
                 location: https://example.com/museum
                 user: https://example.com/ontology/alice
         '404':
