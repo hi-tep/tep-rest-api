@@ -154,8 +154,8 @@ paths:
         - $ref: '#/components/parameters/scenarioId'
       requestBody:
         required: true
-        description: The gaze information. The information must contain the paining and a bounding box, optionally
-                     entities (with optional label and type) and a confidence may be provided.
+        description: The gaze information. The information must contain the paining, bounding box of the gaze area in
+                     the painting and entities the gaze area belongs to. Optionally a confidence may be provided.
         content:
           application/json:
             schema:
@@ -166,6 +166,13 @@ paths:
                   painting: https://example.com/image.jpg
                   entities:
                     - IRI: https://example.com/ontology/king-george
+                  boundingBox:
+                    bottomLeft:
+                      x: 0.0
+                      y: 0.0
+                    topRight:
+                      x: 1.0
+                      y: 1.0
               full:
                 value:
                   painting: https://example.com/image.jpg
@@ -278,6 +285,7 @@ components:
           default: 1.0
       required:
         - painting
+        - entities
         - boundingBox
       example:
         painting: https://example.com/image.jpg
