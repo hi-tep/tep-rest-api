@@ -33,11 +33,26 @@ paths:
       parameters:
         - $ref: '#/components/parameters/scenarioId'
       requestBody:
+        description: The metadata of the interaction. Optional properties of the submitted ScenarioContext,
+                     as for instance the start time, will be filled in automatically. The end time of the
+                     ScenarioContext must not be filled in.
         required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/ScenarioContext'
+            examples:
+              minimal:
+                description: Minimal payload with only the required information
+                value:
+                  location: https://example.com/museum
+                  user: https://example.com/ontology/alice
+              start:
+                description: Payload with predefined start time
+                value:
+                  start: 2000-01-01T00:00:00.000+00:00
+                  location: https://example.com/museum
+                  user: https://example.com/ontology/alice
       responses:
         '200':
           description: Successfully started an interaction
@@ -48,7 +63,7 @@ paths:
         '403':
           description: There is already an ongoing interaction
     get:
-      summary: Retrieve an interaction
+      summary: Retrieve interaction metadata by ID
       tags:
         - scenario
       operationId: getScenario
@@ -61,11 +76,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ScenarioContext'
+              example:
+                id: ee6ce14a-94e4-4ddd-ac60-d1e0262f0274
+                start: 2000-01-01T00:00:00.000+00:00
+                end:
+                location: https://example.com/museum
+                user: https://example.com/ontology/alice
         '404':
           description: There is no such interaction stored
   /scenario/current:
     get:
-      summary: Retrieve an interaction
+      summary: Retrieve interaction metadata of the current interaction
       tags:
         - scenario
       operationId: currentScenario
@@ -76,6 +97,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ScenarioContext'
+              example:
+                id: ee6ce14a-94e4-4ddd-ac60-d1e0262f0274
+                start: 2000-01-01T00:00:00.000+00:00
+                end:
+                location: https://example.com/museum
+                user: https://example.com/ontology/alice
         '404':
           description: There is no active interaction
   /scenario/{scenarioId}/stop:
@@ -88,12 +115,16 @@ paths:
         - $ref: '#/components/parameters/scenarioId'
       requestBody:
         required: false
+        description: Optionally the end time of the interaction may be provided. If none is specified, the
+                     date of submission is used
         content:
           application/json:
             schema:
               type: string
               format: date-time
-              description: End date of the interaction. If none is specified, the date of submission is used
+              description: End date of the interaction
+            example:
+              2000-01-23T04:56:07.000+00:00
       responses:
         '200':
           description: The metadata of the interaction
@@ -101,12 +132,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ScenarioContext'
+              example:
+                start: 2000-01-01T00:00:00.000+00:00
+                location: https://example.com/museum
+                end: 2000-01-01T01:00:00.000+00:00
+                id: ee6ce14a-94e4-4ddd-ac60-d1e0262f0274
+                user: https://example.com/ontology/alice
         '404':
           description: There is no interaction with the given ID
   /scenario/{scenarioId}/gaze:
     post:
       summary: Submit gaze information of the user
-      description: The event marks a conscious gaze of the user on the submitted entities in the painting.
+      description: The event marks a conscious gaze of the user on the submitted entities in the painting
       tags:
         - gaze
       operationId: submitGaze
@@ -114,10 +151,40 @@ paths:
         - $ref: '#/components/parameters/scenarioId'
       requestBody:
         required: true
+        description: The gaze information. The information must contain the paining and a bounding box, optionally
+                     entities (with optional label and type) and a confidence may be provided.
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/GazeDetection'
+            examples:
+              minimal:
+                value:
+                  painting: https://example.com/image.jpg
+                  entities:
+                    - IRI: https://example.com/ontology/king-george
+              full:
+                value:
+                  painting: https://example.com/image.jpg
+                  entities:
+                    - IRI: https://example.com/ontology/king-tubby
+                      type:
+                        - https://example.com/ontology/person
+                        - https://example.com/ontology/musician
+                      label: King Tubby
+                    - IRI: https://example.com/ontology/king-george
+                      type:
+                        - https://example.com/ontology/person
+                        - https://example.com/ontology/emperor
+                      label: King George
+                  boundingBox:
+                    bottomLeft:
+                      x: 0.0
+                      y: 0.0
+                    topRight:
+                      x: 1.0
+                      y: 1.0
+                  confidence: 1.0
       responses:
         '200':
           description: Successfully submitted gaze information
@@ -139,9 +206,9 @@ components:
       type: object
       description: Contextual meta-data of the interaction
       example:
-        start: 2000-01-23T04:56:07.000+00:00
+        start: 2000-01-01T00:00:00.000+00:00
         location: https://example.com/museum
-        end: 2000-01-23T04:56:07.000+00:00
+        end: 2000-01-01T01:00:00.000+00:00
         id: ee6ce14a-94e4-4ddd-ac60-d1e0262f0274
         user: https://example.com/ontology/alice
       required:
@@ -173,12 +240,15 @@ components:
         - IRI
       properties:
         IRI:
+          description: The IRI of the entity
           type: string
         type:
+          description: The type(s) of the entity in the ontology
           type: array
           items:
             type: string
         label:
+          description: A label associated with the entity
           type: string
       example:
         IRI: https://example.com/ontology/king-tubby
@@ -203,12 +273,21 @@ components:
           type: number
           description: Confidence score of the gaze detection as a value in [0, 1]
           default: 1.0
+      required:
+        - painting
+        - boundingBox
       example:
         painting: https://example.com/image.jpg
         entities:
           - IRI: https://example.com/ontology/king-tubby
+            type:
+              - https://example.com/ontology/person
+              - https://example.com/ontology/musician
             label: King Tubby
           - IRI: https://example.com/ontology/king-george
+            type:
+              - https://example.com/ontology/person
+              - https://example.com/ontology/emperor
             label: King George
         boundingBox:
           bottomLeft:
