@@ -273,6 +273,27 @@ paths:
           description: Invalid audio stream or request.
         '409':
           description: There is already an audio stream in progress for the specified session"
+  /scenario/{scenarioId}/chat/response/latest:
+    get:
+      summary: Retrieve the latest response of the agent, maybe empty
+      tags:
+        - chat
+      operationId: getLatestResponse
+      responses:
+        '200':
+          description: The latest response of the agent
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Utterance'
+                  - type: 'null'
+              example:
+                text: "Hello world!"
+                start: 2000-01-01T00:00:00.000+00:00
+                end: 2000-01-01T00:00:10.000+00:00
+        '404':
+          description: There is no active session
 components:
   parameters:
     scenarioId:
@@ -425,3 +446,24 @@ components:
         x: 1.0
         y: 2.0
         z: 3.0
+    Utterance:
+      type: object
+      description: Utterance of an agent/user
+      required:
+        - text
+        - start
+      properties:
+        text:
+          type: string
+        start:
+          type: string
+          format: date-time
+          description: Start date of the utterance
+        end:
+          type: string
+          format: date-time
+          description: End date of the utterance
+      example:
+        text: Hello world!
+        start: 2000-01-23T04:56:07.000+00:00
+        end: 2000-01-23T04:56:17.000+00:00
