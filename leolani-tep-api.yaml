@@ -26,14 +26,14 @@ tags:
 paths:
   /scenario/{scenarioId}:
     put:
-      summary: Start a new interaction
+      summary: Start a new session (scenario)
       tags:
         - scenario
       operationId: startScenario
       parameters:
         - $ref: '#/components/parameters/scenarioId'
       requestBody:
-        description: The metadata of the interaction. Optional properties of the submitted ScenarioContext,
+        description: The metadata of the session. Optional properties of the submitted ScenarioContext,
                      as for instance the start time, will be filled in automatically. The end time of the
                      ScenarioContext must not be filled in.
         required: true
@@ -55,7 +55,7 @@ paths:
                   user: https://example.com/ontology/alice
       responses:
         '200':
-          description: Successfully started an interaction
+          description: Successfully started a session
           content:
             application/json:
               schema:
@@ -66,9 +66,9 @@ paths:
                 location: https://example.com/ontology/museum
                 user: https://example.com/ontology/alice
         '403':
-          description: There is already an ongoing interaction
+          description: There is already an ongoing session
     get:
-      summary: Retrieve interaction metadata by ID
+      summary: Retrieve session metadata by ID
       tags:
         - scenario
       operationId: getScenario
@@ -76,7 +76,7 @@ paths:
         - $ref: '#/components/parameters/scenarioId'
       responses:
         '200':
-          description: The metadata of the interaction
+          description: The metadata of the session
           content:
             application/json:
               schema:
@@ -87,16 +87,16 @@ paths:
                 location: https://example.com/ontology/museum
                 user: https://example.com/ontology/alice
         '404':
-          description: There is no such interaction stored
+          description: There is no such session stored
   /scenario/current:
     get:
-      summary: Retrieve interaction metadata of the current interaction
+      summary: Retrieve session metadata of the current session
       tags:
         - scenario
       operationId: currentScenario
       responses:
         '200':
-          description: The metadata of the interaction
+          description: The metadata of the session
           content:
             application/json:
               schema:
@@ -107,10 +107,10 @@ paths:
                 location: https://example.com/ontology/museum
                 user: https://example.com/ontology/alice
         '404':
-          description: There is no active interaction
+          description: There is no active session
   /scenario/{scenarioId}/stop:
     post:
-      summary: Stop an interaction
+      summary: Stop a session
       tags:
         - scenario
       operationId: stopScenario
@@ -118,19 +118,19 @@ paths:
         - $ref: '#/components/parameters/scenarioId'
       requestBody:
         required: false
-        description: Optionally the end time of the interaction may be provided. If none is specified, the
+        description: Optionally the end time of the session may be provided. If none is specified, the
                      date of submission is used
         content:
           application/json:
             schema:
               type: string
               format: date-time
-              description: End date of the interaction
+              description: End date of the session
             example:
               2000-01-23T04:56:07.000+00:00
       responses:
         '200':
-          description: The metadata of the interaction
+          description: The metadata of the session
           content:
             application/json:
               schema:
@@ -142,11 +142,35 @@ paths:
                 id: ee6ce14a-94e4-4ddd-ac60-d1e0262f0274
                 user: https://example.com/ontology/alice
         '404':
-          description: There is no interaction with the given ID
+          description: There is no session with the given ID
+  /scenario/{scenarioId}/location:
+    post:
+      summary: Submit location information of the user
+      description: The event indicates the visitor's stay at a specific location. There can be multiple location
+                   detections on with the same location in sequence, differing only by start and stop date.
+      tags:
+        - location
+      operationId: submitLocation
+      x-openapi-router-controller: hitep_service.rest.openapi.controllers.location_controller
+      parameters:
+        - $ref: '#/components/parameters/scenarioId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationDetection'
+      responses:
+        '200':
+          description: Successfully submitted location information
+        '403':
+          description: The submitted scenario is not active
   /scenario/{scenarioId}/gaze:
     post:
       summary: Submit gaze information of the user
-      description: The event marks a conscious gaze of the user on the submitted entities in the painting
+      description: The event marks a conscious gaze of the user on the submitted entities in the painting. There can
+                   be multiple gaze detections on with the same gaze target(s) in sequence, differing only by start and
+                   stop date.
       tags:
         - gaze
       operationId: submitGaze
@@ -163,19 +187,28 @@ paths:
             examples:
               minimal:
                 value:
-                  painting: https://example.com/painting.jpg
+                  location:
+                    x: 1.0
+                    y: 2.0
+                    z: 3.0
+                  painting: https://example.com/image.jpg
+                  distance: 1.0
+                  aol:
+                    - https://example.com/ontology/aol/king-tubby
                   entities:
-                    - IRI: https://example.com/ontology/king-george
-                  boundingBox:
-                    bottomLeft:
-                      x: 0.0
-                      y: 0.0
-                    topRight:
-                      x: 1.0
-                      y: 1.0
+                    - IRI: https://example.com/ontology/crown
+                  start: 2000-01-23T04:56:07.000+00:00
               full:
                 value:
-                  painting: https://example.com/painting.jpg
+                  location:
+                    x: 1.0
+                    y: 2.0
+                    z: 3.0
+                  painting: https://example.com/image.jpg
+                  distance: 1.0
+                  aol:
+                    - https://example.com/ontology/aol/king-tubby
+                    - https://example.com/ontology/aol/king-george
                   entities:
                     - IRI: https://example.com/ontology/crown
                       type:
@@ -186,14 +219,8 @@ paths:
                         - https://example.com/ontology/person
                         - https://example.com/ontology/emperor
                       label: King George
-                  boundingBox:
-                    bottomLeft:
-                      x: 0.0
-                      y: 0.0
-                    topRight:
-                      x: 1.0
-                      y: 1.0
-                  confidence: 1.0
+                  start: 2000-01-23T04:56:07.000+00:00
+                  end: 2000-01-23T04:56:07.000+00:00
       responses:
         '200':
           description: Successfully submitted gaze information
@@ -203,7 +230,7 @@ components:
   parameters:
     scenarioId:
       name: scenarioId
-      description: The unique identifier for the interaction
+      description: The unique identifier for the session
       in: path
       required: true
       schema:
@@ -213,7 +240,7 @@ components:
   schemas:
     ScenarioContext:
       type: object
-      description: Contextual meta-data of the interaction
+      description: Contextual meta-data of the session
       example:
         start: 2000-01-01T00:00:00.000+00:00
         location: https://example.com/ontology/museum
@@ -230,18 +257,41 @@ components:
           description: The scenario identifier
         location:
           type: string
-          description: IRI of the location where the interaction takes place
+          description: IRI of the location where the session takes place
         user:
           type: string
           description: IRI identifying the user
         start:
           type: string
           format: date-time
-          description: Start date of the interaction
+          description: Start date of the session
         end:
           type: string
           format: date-time
-          description: Start date of the interaction
+          description: Start date of the session
+    LocationDetection:
+      type: object
+      properties:
+        location:
+          $ref: "#/components/schemas/3DCoordinate"
+        start:
+          type: string
+          format: date-time
+          description: Start date of the stay
+        end:
+          type: string
+          format: date-time
+          description: End date of the stay, if no end date is submitted it is assumed to be equal to the start date
+      required:
+        - location
+        - start
+      example:
+        location:
+          x: 1.0
+          y: 2.0
+          z: 3.0
+        start: 2000-01-23T04:56:07.000+00:00
+        end: 2000-01-23T04:56:07.000+00:00
     Entity:
       type: object
       description: Entity in the knowledge graph
@@ -268,72 +318,71 @@ components:
     GazeDetection:
       type: object
       properties:
+        location:
+          $ref: "#/components/schemas/3DCoordinate"
         painting:
           type: string
           description: IRI of the painting that is the target of the user gaze
+        distance:
+          type: number
+          description: Distance of the user to the painting during the gaze in meters
+        aol:
+          type: array
+          items:
+            type: string
+          description: IRIs of the Areas of Interest (AOI) that are touched by the gaze
         entities:
           type: array
           items:
             $ref: '#/components/schemas/Entity'
           description: IRIs of the entities that are target of the user gaze
-        boundingBox:
-          $ref: '#/components/schemas/BoundingBox'
-        confidence:
-          type: number
-          description: Confidence score of the gaze detection as a value in [0, 1]
-          default: 1.0
+        start:
+          type: string
+          format: date-time
+          description: Start date of the gaze detection
+        end:
+          type: string
+          format: date-time
+          description: End date of the gaze detection, if omitted, the end date will be assumed to be equal to the start date
       required:
+        - location
         - painting
+        - distance
+        - aol
         - entities
-        - boundingBox
+        - start
       example:
+        location:
+          x: 1.0
+          y: 2.0
+          z: 3.0
         painting: https://example.com/image.jpg
+        distance: 1.0
+        aol:
+          - https://example.com/ontology/aol/king-tubby
+          - https://example.com/ontology/aol/king-george
         entities:
-          - IRI: https://example.com/ontology/crown
-            type:
-              - https://example.com/ontology/jewlery
+          - IRI: https://example.com/ontology/king-tubby
             label: King Tubby
           - IRI: https://example.com/ontology/king-george
-            type:
-              - https://example.com/ontology/person
-              - https://example.com/ontology/nobel
             label: King George
-        boundingBox:
-          bottomLeft:
-            x: 0.0
-            y: 0.0
-          topRight:
-            x: 1.0
-            y: 1.0
-        confidence: 1.0
-    BoundingBox:
+        start: 2000-01-23T04:56:07.000+00:00
+        end: 2000-01-23T04:56:07.000+00:00
+    3DCoordinate:
       type: object
-      required:
-        - bottomLeft
-        - topRight
-      properties:
-        bottomLeft:
-          $ref: '#/components/schemas/Coordinate'
-        topRight:
-          $ref: '#/components/schemas/Coordinate'
-      example:
-        bottomLeft:
-          x: 0.0
-          y: 0.0
-        topRight:
-          x: 1.0
-          y: 1.0
-    Coordinate:
-      type: object
-      description: Pixel-Coordinates of a point in the image
+      description: Coordinate in 3D space
       required:
         - x
         - y
+        - z
       properties:
         x:
           type: number
         y:
           type: number
+        z:
+          type: number
       example:
         x: 1.0
         y: 2.0
+        z: 3.0
