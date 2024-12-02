@@ -226,6 +226,60 @@ paths:
           description: Successfully submitted gaze information
         '403':
           description: The submitted scenario is not active
+  /scenario/{scenarioId}/audio:
+    post:
+      summary: Stream audio recorded during the session
+      description: Stream audio recorded during the session. The stream can be interrupted and started again by calling
+                   the endpoint subsequently.
+      operationId: streamAudio
+      tags:
+        - audio
+      parameters:
+        - $ref: '#/components/parameters/scenarioId'
+        - name: X-Sample-Frequency
+          in: header
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: Sample frequency of the audio (e.g., 44100)
+        - name: X-Bit-Depth
+          in: header
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: Bit depth of the audio (e.g., 16, 24)
+        - name: X-Channels
+          in: header
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: Number of audio channels (e.g. 1, 2)
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+              description: Binary audio stream data.
+      responses:
+        '200':
+          description: Audio uploaded successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Audio uploaded successfully."
+        '400':
+          description: Invalid audio stream or request.
+        '409':
+          description: There is already an audio stream in progress for the specified session"
 components:
   parameters:
     scenarioId:
