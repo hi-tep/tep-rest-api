@@ -65,7 +65,7 @@ paths:
                 start: 2000-01-01T00:00:00.000+00:00
                 location: https://example.com/ontology/museum
                 user: https://example.com/ontology/alice
-        '403':
+        '409':
           description: There is already an ongoing session
     get:
       summary: Retrieve session metadata by ID
@@ -151,7 +151,6 @@ paths:
       tags:
         - location
       operationId: submitLocation
-      x-openapi-router-controller: hitep_service.rest.openapi.controllers.location_controller
       parameters:
         - $ref: '#/components/parameters/scenarioId'
       requestBody:
