@@ -379,7 +379,7 @@ components:
         distance:
           type: number
           description: Distance of the user to the painting during the gaze in meters
-        aol:
+        aoi:
           type: array
           items:
             type: string
