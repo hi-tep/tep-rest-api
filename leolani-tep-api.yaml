@@ -45,13 +45,13 @@ paths:
               minimal:
                 description: Minimal payload with only the required information
                 value:
-                  location: https://example.com/ontology/museum
+                  location: https://example.com/ontology/museum/twente
                   user: https://example.com/ontology/alice
               start:
                 description: Payload with predefined start time
                 value:
                   start: 2000-01-01T00:00:00.000+00:00
-                  location: https://example.com/ontology/museum
+                  location: https://example.com/ontology/museum/twente
                   user: https://example.com/ontology/alice
       responses:
         '200':
@@ -63,7 +63,7 @@ paths:
               example:
                 id: ee6ce14a-94e4-4ddd-ac60-d1e0262f0274
                 start: 2000-01-01T00:00:00.000+00:00
-                location: https://example.com/ontology/museum
+                location: https://example.com/ontology/museum/twente
                 user: https://example.com/ontology/alice
         '409':
           description: There is already an ongoing session
@@ -84,7 +84,7 @@ paths:
               example:
                 id: ee6ce14a-94e4-4ddd-ac60-d1e0262f0274
                 start: 2000-01-01T00:00:00.000+00:00
-                location: https://example.com/ontology/museum
+                location: https://example.com/ontology/museum/twente
                 user: https://example.com/ontology/alice
         '404':
           description: There is no such session stored
@@ -104,7 +104,7 @@ paths:
               example:
                 id: ee6ce14a-94e4-4ddd-ac60-d1e0262f0274
                 start: 2000-01-01T00:00:00.000+00:00
-                location: https://example.com/ontology/museum
+                location: https://example.com/ontology/museum/twente
                 user: https://example.com/ontology/alice
         '404':
           description: There is no active session
@@ -137,20 +137,19 @@ paths:
                 $ref: '#/components/schemas/ScenarioContext'
               example:
                 start: 2000-01-01T00:00:00.000+00:00
-                location: https://example.com/ontology/museum
+                location: https://example.com/ontology/museum/twente
                 end: 2000-01-01T01:00:00.000+00:00
                 id: ee6ce14a-94e4-4ddd-ac60-d1e0262f0274
                 user: https://example.com/ontology/alice
         '404':
           description: There is no session with the given ID
-  /scenario/{scenarioId}/location:
+  /scenario/{scenarioId}/positionchange:
     post:
-      summary: Submit location information of the user
-      description: The event indicates the visitor's stay at a specific location. There can be multiple location
-                   detections on with the same location in sequence, differing only by start and stop date.
+      summary: Submit position change of the user
+      description: The event indicates the visitor's change in position.
       tags:
-        - location
-      operationId: submitLocation
+        - position
+      operationId: submitPositionChange
       parameters:
         - $ref: '#/components/parameters/scenarioId'
       requestBody:
@@ -158,10 +157,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LocationDetection'
+              $ref: '#/components/schemas/PositionChange'
       responses:
         '200':
-          description: Successfully submitted location information
+          description: Successfully submitted position change
         '403':
           description: The submitted scenario is not active
   /scenario/{scenarioId}/gaze:
@@ -186,28 +185,23 @@ paths:
             examples:
               minimal:
                 value:
-                  location:
+                  position:
                     x: 1.0
                     y: 2.0
                     z: 3.0
                   painting: https://example.com/image.jpg
                   distance: 1.0
-                  aol:
-                    - https://example.com/ontology/aol/king-tubby
                   entities:
                     - IRI: https://example.com/ontology/crown
                   start: 2000-01-23T04:56:07.000+00:00
               full:
                 value:
-                  location:
+                  position:
                     x: 1.0
                     y: 2.0
                     z: 3.0
                   painting: https://example.com/image.jpg
                   distance: 1.0
-                  aol:
-                    - https://example.com/ontology/aol/king-tubby
-                    - https://example.com/ontology/aol/king-george
                   entities:
                     - IRI: https://example.com/ontology/crown
                       type:
@@ -296,7 +290,7 @@ components:
       description: Contextual meta-data of the session
       example:
         start: 2000-01-01T00:00:00.000+00:00
-        location: https://example.com/ontology/museum
+        location: https://example.com/ontology/museum/twente
         end: 2000-01-01T01:00:00.000+00:00
         id: ee6ce14a-94e4-4ddd-ac60-d1e0262f0274
         user: https://example.com/ontology/alice
@@ -322,29 +316,30 @@ components:
           type: string
           format: date-time
           description: Start date of the session
-    LocationDetection:
+    PositionChange:
       type: object
       properties:
-        location:
+        previous:
           $ref: "#/components/schemas/3DCoordinate"
-        start:
+        current:
+          $ref: "#/components/schemas/3DCoordinate"
+        timestamp:
           type: string
           format: date-time
-          description: Start date of the stay
-        end:
-          type: string
-          format: date-time
-          description: End date of the stay, if no end date is submitted it is assumed to be equal to the start date
+          description: Date of arrival at the current position
       required:
-        - location
-        - start
+        - previous
+        - current
       example:
-        location:
+        previous:
+          x: 0.0
+          y: 0.0
+          z: 0.0
+        current:
           x: 1.0
           y: 2.0
           z: 3.0
-        start: 2000-01-23T04:56:07.000+00:00
-        end: 2000-01-23T04:56:07.000+00:00
+        timestamp: 2000-01-23T04:56:07.000+00:00
     Entity:
       type: object
       description: Entity in the knowledge graph
@@ -371,7 +366,7 @@ components:
     GazeDetection:
       type: object
       properties:
-        location:
+        position:
           $ref: "#/components/schemas/3DCoordinate"
         painting:
           type: string
@@ -379,11 +374,6 @@ components:
         distance:
           type: number
           description: Distance of the user to the painting during the gaze in meters
-        aoi:
-          type: array
-          items:
-            type: string
-          description: IRIs of the Areas of Interest (AOI) that are touched by the gaze
         entities:
           type: array
           items:
@@ -398,22 +388,18 @@ components:
           format: date-time
           description: End date of the gaze detection, if omitted, the end date will be assumed to be equal to the start date
       required:
-        - location
+        - position
         - painting
         - distance
-        - aol
         - entities
         - start
       example:
-        location:
+        position:
           x: 1.0
           y: 2.0
           z: 3.0
         painting: https://example.com/image.jpg
         distance: 1.0
-        aol:
-          - https://example.com/ontology/aol/king-tubby
-          - https://example.com/ontology/aol/king-george
         entities:
           - IRI: https://example.com/ontology/king-tubby
             label: King Tubby
