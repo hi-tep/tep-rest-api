@@ -468,6 +468,10 @@ components:
       required:
         - text
       properties:
+        id:
+          type: string
+          format: uuid
+          description: A unique identifier of the utterance
         text:
           type: string
         start:
@@ -479,6 +483,7 @@ components:
           format: date-time
           description: End date of the utterance, if empty the length of the utterance is not known
       example:
+        id: 62180674-2f58-467f-bc31-2c37a8dfa8c4
         text: Hello world!
         start: 2000-01-23T04:56:07.000+00:00
         end: 2000-01-23T04:56:17.000+00:00
