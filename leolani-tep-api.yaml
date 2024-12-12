@@ -26,7 +26,8 @@ tags:
 paths:
   /scenario/{scenarioId}:
     put:
-      summary: Start a new session (scenario)
+      summary: Session start
+      description: Start a new session (scenario)
       tags:
         - scenario
       operationId: startScenario
@@ -68,7 +69,8 @@ paths:
         '409':
           description: There is already an ongoing session
     get:
-      summary: Retrieve session metadata by ID
+      summary: Session metadata by ID
+      description: Retrieve session metadata by ID
       tags:
         - scenario
       operationId: getScenario
@@ -90,7 +92,8 @@ paths:
           description: There is no such session stored
   /scenario/current:
     get:
-      summary: Retrieve session metadata of the current session
+      summary: Current session metadata
+      description: Retrieve session metadata of the current session
       tags:
         - scenario
       operationId: currentScenario
@@ -110,7 +113,8 @@ paths:
           description: There is no active session
   /scenario/{scenarioId}/stop:
     post:
-      summary: Stop a session
+      summary: Session end
+      description: Stop a session
       tags:
         - scenario
       operationId: stopScenario
@@ -145,8 +149,10 @@ paths:
           description: There is no session with the given ID
   /scenario/{scenarioId}/positionchange:
     post:
-      summary: Submit position change of the user
-      description: The event indicates the visitor's change in position.
+      summary: Position change of the user
+      description: The event indicates the visitor's change in position. The position change can be instantly,
+                   the provided timestamp indicates that the user was at the provided current position at the
+                   provided timestamp.
       tags:
         - position
       operationId: submitPositionChange
@@ -165,10 +171,10 @@ paths:
           description: The submitted scenario is not active
   /scenario/{scenarioId}/gaze:
     post:
-      summary: Submit gaze information of the user
-      description: The event marks a conscious gaze of the user on the submitted entities in the painting. There can
-                   be multiple gaze detections on with the same gaze target(s) in sequence, differing only by start and
-                   stop date.
+      summary: Gaze event of the user
+      description: The event marks a sustained gaze of the user on an Area of Interest (AoI) in the painting, containing
+                   the submitted entities. There can be multiple gaze detections on with the same gaze target(s) in
+                   sequence, differing only by start and stop date.
       tags:
         - gaze
       operationId: submitGaze
@@ -176,8 +182,7 @@ paths:
         - $ref: '#/components/parameters/scenarioId'
       requestBody:
         required: true
-        description: The gaze information. The information must contain the paining, bounding box of the gaze area in
-                     the painting and entities the gaze area belongs to. Optionally a confidence may be provided.
+        description: The gaze information
         content:
           application/json:
             schema:
@@ -221,9 +226,10 @@ paths:
           description: The submitted scenario is not active
   /scenario/{scenarioId}/audio:
     post:
-      summary: Stream audio recorded during the session
+      summary: Audio stream
       description: Stream audio recorded during the session. The stream can be interrupted and started again by calling
-                   the endpoint subsequently.
+                   the endpoint subsequently as many times as needed. Note that interruption of the stream may lead to
+                   interruption of speech transcription if it happens during voice activity of the user.
       operationId: streamAudio
       tags:
         - audio
@@ -275,7 +281,10 @@ paths:
           description: There is already an audio stream in progress for the specified session"
   /scenario/{scenarioId}/chat/response/latest:
     get:
-      summary: Retrieve the latest response of the agent, maybe empty
+      summary: Latest response
+      description: Retrieve the most recent response of the agent, maybe empty if there was no response yet. This
+                   endpoint is intended for constant polling and supports caching through ETag or Last-Modified
+                   headers.
       tags:
         - chat
       operationId: getLatestResponse
@@ -363,7 +372,7 @@ components:
         timestamp:
           type: string
           format: date-time
-          description: Date of arrival at the current position
+          description: Date of presence at the current position
       required:
         - previous
         - current
