@@ -235,46 +235,30 @@ paths:
         - audio
       parameters:
         - $ref: '#/components/parameters/scenarioId'
-        - name: X-Sample-Frequency
+        - name: Content-Type
           in: header
           required: true
           schema:
-            type: integer
-            format: int32
-            description: Sample frequency of the audio (e.g., 44100)
-        - name: X-Bit-Depth
-          in: header
-          required: true
-          schema:
-            type: integer
-            format: int32
-            description: Bit depth of the audio (e.g., 16, 24)
-        - name: X-Channels
-          in: header
-          required: true
-          schema:
-            type: integer
-            format: int32
-            description: Number of audio channels (e.g. 1, 2)
+            type: string
+            pattern: ^audio/(l16;rate=\d+;channels=\d+|wav)$
+            description: The content type with optional rate and channels parameters.
+            example: audio/l16;rate=16000;channels=2
       requestBody:
         required: true
         content:
-          application/octet-stream:
+          audio/l16:
             schema:
               type: string
               format: binary
-              description: Binary audio stream data.
+              description: Raw PCM audio data in `audio/l16` format.
+          audio/wav:
+            schema:
+              type: string
+              format: binary
+              description: Raw audio data in `audio/wav` format.
       responses:
         '200':
           description: Audio uploaded successfully.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "Audio uploaded successfully."
         '400':
           description: Invalid audio stream or request.
         '409':
