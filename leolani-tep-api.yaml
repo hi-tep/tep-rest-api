@@ -274,20 +274,13 @@ paths:
       operationId: getLatestResponse
       parameters:
         - $ref: '#/components/parameters/scenarioId'
-        - name: ETag
+        - name: If-None-Match
           in: header
-          required: true
+          required: false
           schema:
             type: string
-            description: ETag header
-            example: "62180674-2f58-467f-bc31-2c37a8dfa8c4"
-        - name: Cache-Control
-          in: header
-          required: true
-          schema:
-            type: string
-            description: Cache control header
-            example: "max-age=0, must-revalidate, proxy-revalidate"
+            description: If-None-Match header for cache control
+            example: W/"1234567890"
       responses:
         '200':
           description: The latest response of the agent
@@ -297,6 +290,11 @@ paths:
               schema:
                 type: string
                 example: W/"1234567890"
+            Cache-Control:
+              schema:
+                type: string
+                description: Cache control header
+                example: "max-age=0, must-revalidate, proxy-revalidate"
           content:
             application/json:
               schema:
